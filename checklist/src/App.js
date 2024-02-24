@@ -1,17 +1,18 @@
 import "./index.css";
 import { useState } from "react";
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: true },
-  { id: 3, description: "Charger", quantity: 1, packed: false },
-];
 
 export default function App() {
+  const [items, setItem] = useState([]);
+
+  function addItem(item) {
+    return setItem((items) => [...items, item]);
+  }
+
   return (
     <div>
       <Logo></Logo>
-      <Form></Form>
-      <PackingList></PackingList>
+      <Form onAddItem={addItem} />
+      <PackingList items={items} />
       <Stats></Stats>
     </div>
   );
@@ -21,21 +22,22 @@ function Logo() {
   return <h1>✈️Far Away👜</h1>;
 }
 
-function Form() {
+function Form({ onAddItem }) {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [id, setId] = useState(4);
 
   function handleSubmit(e) {
     e.preventDefault();
+
     if (!description) return;
+
     const newData = {
-      id: id,
-      description: description,
-      quantity: quantity,
+      id: Date.now(),
+      description,
+      quantity,
       package: false,
     };
-    setId(id + 1);
+    onAddItem(newData);
     console.log(newData);
   }
 
@@ -60,25 +62,28 @@ function Form() {
     </form>
   );
 }
-function PackingList() {
+function PackingList({ items }) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
+        {items.map((item) => (
           <Item itemObj={item} key={item.id} />
         ))}
+
+        {console.log(items)}
       </ul>
     </div>
   );
 }
 
 function Item({ itemObj }) {
+  const [isPacked, setIsPacked] = useState(false);
   return (
     <li>
-      <span style={itemObj.packed ? { textDecoration: "line-through" } : {}}>
+      <span style={isPacked ? { textDecoration: "line-through" } : {}}>
         {itemObj.quantity} {itemObj.description}
       </span>
-      <button>✖️</button>
+      <button onClick={() => setIsPacked(!isPacked)}>✖️</button>
     </li>
   );
 }
